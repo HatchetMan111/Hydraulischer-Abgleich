@@ -21,6 +21,15 @@ Pro Anpassung gibt es eine **Begründung im Bericht** („heizt 1,4× schneller 
 - Am Ende jedes Zyklus und bei Abbruch werden alle **Solltemperaturen wiederhergestellt**
 - Stop-Service setzt jederzeit zurück (Solltemperaturen + Original-Öffnungsgrade)
 
+## Ein Blick auf die Oberfläche
+
+| | |
+|---|---|
+| ![Einstellungen](docs/images/config-options.png) | ![Raum hinzufügen](docs/images/config-room.png) |
+| *Einrichtung: Optionen (Intervall, Toleranz, Zyklen …)* | *Einrichtung: Raum mit Thermostat, Sensor & Ventil-Entity* |
+| ![Dashboard](docs/images/dashboard.png) | ![Sensor-Details](docs/images/sensor-detail.png) |
+| *Dashboard: Status, Steuerung, Räume & Bericht* | *Entity-Details: Öffnungsgrade, Median & vollständiger Bericht* |
+
 ## Voraussetzungen
 
 - Home Assistant **2025.1+**
