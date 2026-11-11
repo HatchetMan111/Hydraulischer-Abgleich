@@ -1,0 +1,68 @@
+{
+  "config": {
+    "step": {
+      "options": {
+        "title": "Hydraulic Balance — settings",
+        "description": "The balancing runs in cycles: all rooms heat at the same time, heat-up rates are compared and the maximum valve opening degrees are adjusted.",
+        "data": {
+          "measure_interval_s": "Measurement interval (seconds)",
+          "boost_delta": "Boost: K above current temperature",
+          "boost_cap": "Maximum target temperature during measurement (°C)",
+          "min_opening": "Opening degree lower limit (%)",
+          "timeout_min": "Timeout per cycle (minutes)",
+          "tolerance": "Tolerance band (%)",
+          "max_cycles": "Maximum cycles",
+          "autoset": "Automatically write results to the thermostats"
+        }
+      },
+      "room": {
+        "title": "Add a room",
+        "description": "Pick the thermostat, a room temperature sensor and optionally the number entity controlling the maximum valve opening degree (e.g. Sonoff TRVZB \"valve_opening_degree_max\" via Zigbee2MQTT).",
+        "data": {
+          "name": "Room name (e.g. Living room)",
+          "climate": "Thermostat (climate.*)",
+          "temp_sensor": "Room temperature sensor (sensor.*)",
+          "max_opening_number": "Number entity for max. opening degree (optional)",
+          "opening_sensor": "Sensor for current opening degree (optional)",
+          "add_another": "Add another room"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Please provide a room name.",
+      "duplicate_name": "This room already exists.",
+      "entity_missing": "This entity does not exist (or is unavailable)."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Hydraulic Balance — settings",
+        "data": {
+          "measure_interval_s": "Measurement interval (seconds)",
+          "boost_delta": "Boost: K above current temperature",
+          "boost_cap": "Maximum target temperature during measurement (°C)",
+          "min_opening": "Opening degree lower limit (%)",
+          "timeout_min": "Timeout per cycle (minutes)",
+          "tolerance": "Tolerance band (%)",
+          "max_cycles": "Maximum cycles",
+          "autoset": "Automatically write results to the thermostats"
+        }
+      }
+    }
+  },
+  "services": {
+    "start": {
+      "name": "Start balancing",
+      "description": "Starts the balancing run: measurement cycles followed by opening-degree adjustments."
+    },
+    "stop": {
+      "name": "Stop balancing",
+      "description": "Aborts the current run and restores original setpoints and opening degrees."
+    },
+    "reset_learning": {
+      "name": "Reset learning",
+      "description": "Resets all learned opening degrees back to 100 %."
+    }
+  }
+}

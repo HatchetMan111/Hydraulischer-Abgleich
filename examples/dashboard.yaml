@@ -1,0 +1,60 @@
+# Beispiel-Dashboard für den Hydraulik-Abgleich
+# In Home Assistant: Dashboard → neu → YAML-Modus → Inhalt einfügen.
+title: Hydraulik-Abgleich
+views:
+  - title: Abgleich
+    path: hydraulik
+    cards:
+      - type: entities
+        title: Status
+        entities:
+          - entity: sensor.hydraulik_abgleich_status
+            name: Status
+          - entity: sensor.hydraulik_abgleich_status
+            name: Öffnungsgrade
+            attribute: oeffnungsgrade
+      - type: horizontal-stack
+        cards:
+          - type: button
+            name: Start
+            icon: mdi:play
+            tap_action:
+              action: perform-action
+              perform_action: hydraulic_balance.start
+              target: {}
+          - type: button
+            name: Stop
+            icon: mdi:stop
+            tap_action:
+              action: perform-action
+              perform_action: hydraulic_balance.stop
+              target: {}
+          - type: button
+            name: Reset
+            icon: mdi:restart
+            tap_action:
+              action: perform-action
+              perform_action: hydraulic_balance.reset_learning
+              target: {}
+      - type: entities
+        title: Räume
+        entities:
+          - sensor.wohnzimmer_heizrate
+          - sensor.wohnzimmer_offnungsgrad_ziel
+          - sensor.wohnzimmer_abgleich_status
+          - sensor.schlafzimmer_heizrate
+          - sensor.schlafzimmer_offnungsgrad_ziel
+          - sensor.schlafzimmer_abgleich_status
+        # Je Raum 3 Sensoren: Heizrate (K/h), Öffnungsgrad-Ziel (%), Status.
+        # Die genauen Entitäts-IDs hängen von euren Raumnamen ab.
+      - type: markdown
+        title: Bericht
+        content: >-
+          {% set s = states.sensor.hydraulik_abgleich_status %}
+          {% if s and s.attributes.bericht %}
+            {% for zeile in s.attributes.bericht %}
+              {{ zeile }}
+            {% endfor %}
+          {% else %}
+            Noch kein Bericht — Abgleich noch nicht gestartet.
+          {% endif %}

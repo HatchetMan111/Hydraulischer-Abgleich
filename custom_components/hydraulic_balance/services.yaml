@@ -1,0 +1,16 @@
+start:
+  name: Start
+  description: >-
+    Starts the balancing run (measurement cycles + opening-degree adjustment).
+    Keep windows closed and the heating system running with warm flow water.
+  fields:
+    config_entry_id:
+      name: Config entry
+      description: Only needed if you created more than one Hydraulic Balance configuration.
+stop:
+  name: Stop
+  description: >-
+    Aborts the current run and restores the original setpoints and opening degrees.
+reset_learning:
+  name: Reset learning
+  description: Resets all learned opening degrees back to 100 %.

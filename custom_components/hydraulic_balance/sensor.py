@@ -1,0 +1,134 @@
+"""Sensor platform: global status plus per-room rate/opening/status sensors."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import callback
+from homeassistant.helpers.device_registry import DeviceInfo
+
+from .const import DOMAIN, MANUFACTURER
+from .coordinator import HydraulicBalanceCoordinator, RoomRuntime
+from .learning import DEFAULT_MAX_OPENING
+
+
+class _BalanceEntity(SensorEntity):
+    _attr_should_poll = False
+
+    def __init__(self, coordinator: HydraulicBalanceCoordinator, entry: ConfigEntry) -> None:
+        self._coord = coordinator
+        self._entry = entry
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Hydraulik-Abgleich",
+            manufacturer=MANUFACTURER,
+        )
+
+    @callback
+    def _handle_update(self) -> None:
+        self.async_write_ha_state()
+
+    async def async_added_to_hass(self) -> None:
+        self._coord.async_add_listener(self._handle_update)
+
+    async def async_will_remove_from_hass(self) -> None:
+        self._coord.async_remove_listener(self._handle_update)
+
+
+class GlobalStatusSensor(_BalanceEntity):
+    _attr_name = "Hydraulik-Abgleich Status"
+    _attr_icon = "mdi:pipe-valve"
+
+    def __init__(self, coordinator: HydraulicBalanceCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}-status"
+
+    @property
+    def native_value(self) -> str:
+        return self._coord.phase
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        coord = self._coord
+        return {
+            "zyklus": coord.cycles_done,
+            "konvergiert": coord.converged,
+            "median_kph": None if coord.last_median is None else round(coord.last_median, 3),
+            "hinweise": list(coord.advice),
+            "bericht": list(coord.report[-50:]),
+            "oeffnungsgrade": {k: int(round(v)) for k, v in coord.learning.items()},
+        }
+
+
+class RoomRateSensor(_BalanceEntity):
+    _attr_native_unit_of_measurement = "K/h"
+    _attr_icon = "mdi:trending-up"
+
+    def __init__(self, coordinator: HydraulicBalanceCoordinator, entry: ConfigEntry, room: RoomRuntime) -> None:
+        super().__init__(coordinator, entry)
+        self._room = room
+        self._attr_unique_id = f"{entry.entry_id}-rate-{room.name}"
+        self._attr_name = f"{room.name} Heizrate"
+
+    @property
+    def native_value(self) -> float | None:
+        return None if self._room.rate is None else round(self._room.rate, 2)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        room = self._room
+        return {
+            "starttemperatur": room.start_temp,
+            "zieltemperatur": room.target,
+            "hat_ziel_erreicht": room.reached,
+            "messpunkte": len(room.samples),
+        }
+
+
+class RoomOpeningSensor(_BalanceEntity):
+    _attr_native_unit_of_measurement = "%"
+    _attr_icon = "mdi:valve"
+
+    def __init__(self, coordinator: HydraulicBalanceCoordinator, entry: ConfigEntry, room: RoomRuntime) -> None:
+        super().__init__(coordinator, entry)
+        self._room = room
+        self._attr_unique_id = f"{entry.entry_id}-opening-{room.name}"
+        self._attr_name = f"{room.name} Öffnungsgrad-Ziel"
+
+    @property
+    def native_value(self) -> int:
+        return int(round(self._coord.learning.get(self._room.name, DEFAULT_MAX_OPENING)))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {"begründung": self._room.reason}
+
+
+class RoomStatusSensor(_BalanceEntity):
+    _attr_icon = "mdi:information-outline"
+
+    def __init__(self, coordinator: HydraulicBalanceCoordinator, entry: ConfigEntry, room: RoomRuntime) -> None:
+        super().__init__(coordinator, entry)
+        self._room = room
+        self._attr_unique_id = f"{entry.entry_id}-status-{room.name}"
+        self._attr_name = f"{room.name} Abgleich-Status"
+
+    @property
+    def native_value(self) -> str:
+        return self._room.status
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {"begründung": self._room.reason, "heizrate_kph": self._room.rate}
+
+
+async def async_setup_entry(hass, entry, async_add_entities):
+    coord: HydraulicBalanceCoordinator = hass.data[DOMAIN][entry.entry_id]
+    entities: list[SensorEntity] = [GlobalStatusSensor(coord, entry)]
+    for room in coord.rooms:
+        entities.append(RoomRateSensor(coord, entry, room))
+        entities.append(RoomOpeningSensor(coord, entry, room))
+        entities.append(RoomStatusSensor(coord, entry, room))
+    async_add_entities(entities)

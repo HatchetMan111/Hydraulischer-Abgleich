@@ -1,0 +1,68 @@
+{
+  "config": {
+    "step": {
+      "options": {
+        "title": "Hydraulik-Abgleich — Einstellungen",
+        "description": "Der Abgleich läuft in Zyklen: alle Räume heizen gleichzeitig, die Aufheizraten werden verglichen und die maximalen Ventilöffnungsgrade angepasst.",
+        "data": {
+          "measure_interval_s": "Messintervall (Sekunden)",
+          "boost_delta": "Mess-Anhebung: K über Ist-Temperatur",
+          "boost_cap": "Maximale Mess-Zieltemperatur (°C)",
+          "min_opening": "Untergrenze Öffnungsgrad (%)",
+          "timeout_min": "Timeout pro Zyklus (Minuten)",
+          "tolerance": "Toleranzband (%)",
+          "max_cycles": "Maximale Zyklen",
+          "autoset": "Ergebnis automatisch in die Thermostate schreiben"
+        }
+      },
+      "room": {
+        "title": "Raum hinzufügen",
+        "description": "Thermostat, Raum-Temperatursensor und optional das Number-Entity für den maximalen Ventilöffnungsgrad (z. B. Sonoff TRVZB „valve_opening_degree_max“ via Zigbee2MQTT) angeben.",
+        "data": {
+          "name": "Raumname (z. B. Wohnzimmer)",
+          "climate": "Thermostat (climate.*)",
+          "temp_sensor": "Raum-Temperatursensor (sensor.*)",
+          "max_opening_number": "Number-Entity max. Öffnungsgrad (optional)",
+          "opening_sensor": "Sensor aktueller Öffnungsgrad (optional)",
+          "add_another": "Weiteren Raum hinzufügen"
+        }
+      }
+    },
+    "error": {
+      "name_required": "Bitte einen Raumnamen angeben.",
+      "duplicate_name": "Diesen Raum gibt es schon.",
+      "entity_missing": "Diese Entität existiert nicht (oder ist nicht verfügbar)."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Hydraulik-Abgleich — Einstellungen",
+        "data": {
+          "measure_interval_s": "Messintervall (Sekunden)",
+          "boost_delta": "Mess-Anhebung: K über Ist-Temperatur",
+          "boost_cap": "Maximale Mess-Zieltemperatur (°C)",
+          "min_opening": "Untergrenze Öffnungsgrad (%)",
+          "timeout_min": "Timeout pro Zyklus (Minuten)",
+          "tolerance": "Toleranzband (%)",
+          "max_cycles": "Maximale Zyklen",
+          "autoset": "Ergebnis automatisch in die Thermostate schreiben"
+        }
+      }
+    }
+  },
+  "services": {
+    "start": {
+      "name": "Abgleich starten",
+      "description": "Startet den Abgleich: Messzyklen mit anschließender Anpassung der Öffnungsgrade."
+    },
+    "stop": {
+      "name": "Abgleich stoppen",
+      "description": "Bricht den laufenden Abgleich ab und stellt Solltemperaturen und Öffnungsgrade wieder her."
+    },
+    "reset_learning": {
+      "name": "Lernwerte zurücksetzen",
+      "description": "Setzt alle gelernten Öffnungsgrade auf 100 % zurück."
+    }
+  }
+}

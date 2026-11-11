@@ -1,0 +1,12 @@
+{
+  "domain": "hydraulic_balance",
+  "name": "Hydraulic Balance",
+  "codeowners": ["@hatchetman111"],
+  "config_flow": true,
+  "documentation": "https://github.com/HatchetMan111/Hydraulischer-Abgleich",
+  "integration_type": "hub",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/HatchetMan111/Hydraulischer-Abgleich/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
