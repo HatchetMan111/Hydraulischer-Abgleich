@@ -23,12 +23,14 @@ Pro Anpassung gibt es eine **Begründung im Bericht** („heizt 1,4× schneller 
 
 ## Ein Blick auf die Oberfläche
 
+Die oberen beiden Bilder stammen aus der interaktiven Live-Demo der Regellogik (Simulation mit derselben Mathematik wie die Integration).
+
 | | |
 |---|---|
+| ![Live-Demo Messphase](docs/images/demo-messung.png) | ![Live-Demo Ergebnis](docs/images/demo-ergebnis.png) |
+| *Live-Demo: Zyklus 1 — alle Ventile bei 100 %, die Aufheizkurven steigen* | *Live-Demo: Ergebnis — Schlafzimmer auf 87 % geregelt, Keller meldet Systemgrenze* |
 | ![Einstellungen](docs/images/config-options.png) | ![Raum hinzufügen](docs/images/config-room.png) |
 | *Einrichtung: Optionen (Intervall, Toleranz, Zyklen …)* | *Einrichtung: Raum mit Thermostat, Sensor & Ventil-Entity* |
-| ![Dashboard](docs/images/dashboard.png) | ![Sensor-Details](docs/images/sensor-detail.png) |
-| *Dashboard: Status, Steuerung, Räume & Bericht* | *Entity-Details: Öffnungsgrade, Median & vollständiger Bericht* |
 
 ## Voraussetzungen
 
