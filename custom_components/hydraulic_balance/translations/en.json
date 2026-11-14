@@ -12,7 +12,9 @@
           "timeout_min": "Timeout per cycle (minutes)",
           "tolerance": "Tolerance band (%)",
           "max_cycles": "Maximum cycles",
-          "autoset": "Automatically write results to the thermostats"
+          "autoset": "Automatically write results to the thermostats",
+          "flow_sensor": "Flow temperature sensor (optional, ΔT monitoring)",
+          "return_sensor": "Return temperature sensor (optional, ΔT monitoring)"
         }
       },
       "room": {
@@ -46,7 +48,9 @@
           "timeout_min": "Timeout per cycle (minutes)",
           "tolerance": "Tolerance band (%)",
           "max_cycles": "Maximum cycles",
-          "autoset": "Automatically write results to the thermostats"
+          "autoset": "Automatically write results to the thermostats",
+          "flow_sensor": "Flow temperature sensor (optional, ΔT monitoring)",
+          "return_sensor": "Return temperature sensor (optional, ΔT monitoring)"
         }
       }
     }

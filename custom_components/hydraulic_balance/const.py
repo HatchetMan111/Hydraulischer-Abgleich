@@ -21,6 +21,8 @@ CONF_TIMEOUT = "timeout_min"
 CONF_TOLERANCE = "tolerance"
 CONF_AUTOSET = "autoset"
 CONF_MAX_CYCLES = "max_cycles"
+CONF_FLOW_SENSOR = "flow_sensor"
+CONF_RETURN_SENSOR = "return_sensor"
 
 OPTION_DEFAULTS: dict[str, float] = {
     CONF_INTERVAL: 60,
@@ -31,4 +33,6 @@ OPTION_DEFAULTS: dict[str, float] = {
     CONF_TOLERANCE: 15,
     CONF_AUTOSET: True,
     CONF_MAX_CYCLES: 4,
+    CONF_FLOW_SENSOR: "",
+    CONF_RETURN_SENSOR: "",
 }

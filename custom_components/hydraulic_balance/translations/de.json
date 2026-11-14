@@ -12,7 +12,9 @@
           "timeout_min": "Timeout pro Zyklus (Minuten)",
           "tolerance": "Toleranzband (%)",
           "max_cycles": "Maximale Zyklen",
-          "autoset": "Ergebnis automatisch in die Thermostate schreiben"
+          "autoset": "Ergebnis automatisch in die Thermostate schreiben",
+          "flow_sensor": "Vorlauf-Temperatursensor (optional, ΔT-Monitoring)",
+          "return_sensor": "Rücklauf-Temperatursensor (optional, ΔT-Monitoring)"
         }
       },
       "room": {
@@ -46,7 +48,9 @@
           "timeout_min": "Timeout pro Zyklus (Minuten)",
           "tolerance": "Toleranzband (%)",
           "max_cycles": "Maximale Zyklen",
-          "autoset": "Ergebnis automatisch in die Thermostate schreiben"
+          "autoset": "Ergebnis automatisch in die Thermostate schreiben",
+          "flow_sensor": "Vorlauf-Temperatursensor (optional, ΔT-Monitoring)",
+          "return_sensor": "Rücklauf-Temperatursensor (optional, ΔT-Monitoring)"
         }
       }
     }

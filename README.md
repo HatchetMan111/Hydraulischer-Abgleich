@@ -77,6 +77,29 @@ Die oberen beiden Bilder stammen aus der interaktiven Live-Demo der Regellogik (
 - **(an Untergrenze)** → Raum wird am Limit gedrosselt; stärkere Drosselung nur noch manuell an der Rücklaufverschraubung möglich
 - **(an Obergrenze 100 %)** → Kreis ist zu schwach versorgt: Rücklaufverschraubung öffnen, entlüften, Heizlast prüfen — das meldet das System, statt endlos weiterzuregeln
 
+## Effizienz-Modul: ΔT-Monitoring (Vorlauf/Rücklauf)
+
+Optional: In den Einstellungen zwei Temperatursensoren für **Vorlauf** und **Rücklauf** (am Verteiler oder Kessel) hinterlegen — die Integration ergänzt dann zwei Sensoren:
+
+- **Spreizung (ΔT)** in Kelvin
+- **Effizienz-Status** mit Hinweis:
+  - `spreizung_zu_klein` — Rücklauf zu warm: Vorlauf senken (Brennwertgewinn) oder Durchfluss drosseln
+  - `spreizung_zu_gross` — zu wenig Durchfluss: Heizflächen werden nicht voll durchspült
+  - `keine_spreizung` — Heizbetrieb/Pumpe prüfen oder es strömt ungenutzt durch
+  - `fehler` — Rücklauf wärmer als Vorlauf: Messstelle/Sensoren prüfen
+
+Damit lässt sich die **Vorlauftemperatur systematisch absenken** (der größte Effizienzhebel): Vorlauf um 2 K senken, ein paar Tage beobachten, ob alle Räume noch folgen — der Effizienz-Sensor zeigt, ob die Spreizung gesund bleibt.
+
+**Grenzwerte:** Standard 5–15 K (Heizkörper). Fußbodenheizung arbeitet mit kleinerer Spreizung (typisch 3–8 K) — die Meldungen entsprechend einordnen.
+
+### Hardware für die Rohr-Fühler
+
+- **Sonoff TRVZB als Fühler-Träger**: Die TRVZB kommt mit einem externen Fühler (Z2M: `external_temperature`). Trick: eine TRVZB am Verteiler platzieren, den Fühler mit Alu-Klebeband/Kabelbinder ans Rohr setzen und isolieren, die Heizfunktion der TRV dabei ungenutzt lassen (~30 €/Stück).
+- **SNZB-02 / SNZB-02D**: Luft-Sensoren — für die Rohr-Montage ungeeignet.
+- **Günstiger**: DS18B20-Anbindefühler (~5 €) mit ESPHome-Gerät oder Shelly Plus (Add-on) — WLAN statt Zigbee.
+
+**Ehrliche Grenze:** Ohne Durchflussmessung (oder Pumpenleistungssignal) lässt sich aus ΔT keine absolute Wärmemenge berechnen — das Modul liefert Trends und Einordnungen, keine kWh.
+
 ## Grenzen (ehrlich)
 
 - Der digitale Abgleich **ersetzt keinen klassischen statischen Abgleich** an den Rücklaufverschraubungen — er optimiert die Verteilung innerhalb der durch die Ventile gegebenen Bandbreite. Bei Fußbodenheizung muss der statische Abgleich stimmen, hier drosselt digital nur Symptome.

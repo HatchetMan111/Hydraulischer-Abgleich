@@ -20,12 +20,14 @@ from .const import (
     CONF_BOOST_CAP,
     CONF_BOOST_DELTA,
     CONF_CLIMATE,
+    CONF_FLOW_SENSOR,
     CONF_INTERVAL,
     CONF_MAX_CYCLES,
     CONF_MAX_OPENING_NUMBER,
     CONF_MIN_OPENING,
     CONF_NAME,
     CONF_OPENING_SENSOR,
+    CONF_RETURN_SENSOR,
     CONF_TEMP_SENSOR,
     CONF_TIMEOUT,
     CONF_TOLERANCE,
@@ -51,6 +53,12 @@ def _options_schema(defaults: dict) -> vol.Schema:
             vol.Required(CONF_TOLERANCE, default=defaults[CONF_TOLERANCE]): _number(5, 40, 5, "%"),
             vol.Required(CONF_MAX_CYCLES, default=defaults[CONF_MAX_CYCLES]): _number(1, 8, 1, ""),
             vol.Required(CONF_AUTOSET, default=defaults[CONF_AUTOSET]): BooleanSelector(),
+            vol.Optional(CONF_FLOW_SENSOR, default=defaults.get(CONF_FLOW_SENSOR, "")): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="temperature")
+            ),
+            vol.Optional(CONF_RETURN_SENSOR, default=defaults.get(CONF_RETURN_SENSOR, "")): EntitySelector(
+                EntitySelectorConfig(domain="sensor", device_class="temperature")
+            ),
         }
     )
 

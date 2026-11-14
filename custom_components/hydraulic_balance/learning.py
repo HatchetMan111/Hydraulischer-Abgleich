@@ -252,3 +252,55 @@ def adjust_openings(
         adjustments.append(RoomAdjustment(m.name, cur, new, reason, stuck=stuck_flag))
 
     return AdjustResult(adjustments, converged, median, advice)
+
+
+# ------------------------------------------------------------ efficiency (ΔT)
+
+def evaluate_delta_t(
+    flow_temp: float | None,
+    return_temp: float | None,
+    low: float = 5.0,
+    high: float = 15.0,
+) -> dict | None:
+    """Bewerte die Spreizung (ΔT) zwischen Vorlauf und Rücklauf.
+
+    - Spreizung zu klein: Rücklauf zu warm — der Wärmeerzeuger kann bei
+      Brennwerttechnik nicht kondensieren und der Kreis strömt über.
+    - Spreizung zu groß: zu wenig Durchfluss — Heizflächen werden nicht
+      voll durchspült.
+    Rückgabe: {"delta": K, "status": str, "advice": str} oder None ohne Daten.
+    """
+    if flow_temp is None or return_temp is None:
+        return None
+    delta = round(flow_temp - return_temp, 2)
+    if delta < 0:
+        return {
+            "delta": delta,
+            "status": "fehler",
+            "advice": "Rücklauf ist wärmer als Vorlauf — Sensor-Tausch oder Messstelle prüfen.",
+        }
+    if delta < 1.0:
+        return {
+            "delta": delta,
+            "status": "keine_spreizung",
+            "advice": "Kaum Spreizung — Heizbetrieb/Heizpumpe prüfen oder es strömt ungenutzt durch.",
+        }
+    if delta < low:
+        return {
+            "delta": delta,
+            "status": "spreizung_zu_klein",
+            "advice": "Spreizung zu klein: Rücklauf ist zu warm — Vorlauf senken (Brennwertgewinn) "
+            "oder Durchfluss drosseln.",
+        }
+    if delta > high:
+        return {
+            "delta": delta,
+            "status": "spreizung_zu_gross",
+            "advice": "Spreizung sehr groß: wenig Durchfluss — Heizflächen werden nicht voll "
+            "durchspült; Öffnungsgrade/Volumenstrom erhöhen.",
+        }
+    return {
+        "delta": delta,
+        "status": "ok",
+        "advice": f"Spreizung {delta:.1f} K — gesunder Betrieb.",
+    }

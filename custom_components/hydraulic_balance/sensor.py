@@ -8,10 +8,11 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.event import async_track_state_change_event
 
-from .const import DOMAIN, MANUFACTURER
+from .const import CONF_FLOW_SENSOR, CONF_RETURN_SENSOR, DOMAIN, MANUFACTURER
 from .coordinator import HydraulicBalanceCoordinator, RoomRuntime
-from .learning import DEFAULT_MAX_OPENING
+from .learning import DEFAULT_MAX_OPENING, evaluate_delta_t
 
 
 class _BalanceEntity(SensorEntity):
@@ -124,6 +125,92 @@ class RoomStatusSensor(_BalanceEntity):
         return {"begründung": self._room.reason, "heizrate_kph": self._room.rate}
 
 
+class _PipeSensorEntity(_BalanceEntity):
+    """Basis für Sensoren, die von Vor-/Rücklauf-Temperatursensoren leben."""
+
+    def __init__(self, coordinator: HydraulicBalanceCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry)
+        self._flow_id = str(entry.options.get(CONF_FLOW_SENSOR, "") or "")
+        self._return_id = str(entry.options.get(CONF_RETURN_SENSOR, "") or "")
+        self._unsub_track = None
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self._unsub_track = async_track_state_change_event(
+            self.hass, [self._flow_id, self._return_id], self._on_state_change
+        )
+
+    async def async_will_remove_from_hass(self) -> None:
+        await super().async_will_remove_from_hass()
+        if self._unsub_track:
+            self._unsub_track()
+            self._unsub_track = None
+
+    @callback
+    def _on_state_change(self, event) -> None:
+        self.async_write_ha_state()
+
+    def _read_temps(self) -> tuple[float | None, float | None]:
+        flow = HydraulicBalanceCoordinator._state_float(self.hass, self._flow_id)
+        ret = HydraulicBalanceCoordinator._state_float(self.hass, self._return_id)
+        return flow, ret
+
+
+class DeltaTSensor(_PipeSensorEntity):
+    """Spreizung (ΔT) zwischen Vorlauf und Rücklauf in Kelvin."""
+
+    _attr_name = "Hydraulik-Abgleich Spreizung (ΔT)"
+    _attr_native_unit_of_measurement = "K"
+    _attr_icon = "mdi:heat-pump"
+
+    def __init__(self, coordinator: HydraulicBalanceCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}-delta-t"
+
+    @property
+    def native_value(self) -> float | None:
+        result = evaluate_delta_t(*self._read_temps())
+        return None if result is None else result["delta"]
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        flow, ret = self._read_temps()
+        result = evaluate_delta_t(flow, ret)
+        return {
+            "vorlauf": flow,
+            "ruecklauf": ret,
+            "status": None if result is None else result["status"],
+            "hinweis": None if result is None else result["advice"],
+        }
+
+
+class EfficiencyStatusSensor(_PipeSensorEntity):
+    """Effizienz-Bewertung aus der Spreizung (Rücklauf-Minimierung)."""
+
+    _attr_name = "Hydraulik-Abgleich Effizienz"
+    _attr_icon = "mdi:leaf"
+
+    def __init__(self, coordinator: HydraulicBalanceCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}-effizienz"
+
+    @property
+    def native_value(self) -> str:
+        result = evaluate_delta_t(*self._read_temps())
+        return "unbekannt" if result is None else result["status"]
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        flow, ret = self._read_temps()
+        result = evaluate_delta_t(flow, ret)
+        return {
+            "delta_t": None if result is None else result["delta"],
+            "vorlauf": flow,
+            "ruecklauf": ret,
+            "hinweis": None if result is None else result["advice"],
+        }
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     coord: HydraulicBalanceCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities: list[SensorEntity] = [GlobalStatusSensor(coord, entry)]
@@ -131,4 +218,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.append(RoomRateSensor(coord, entry, room))
         entities.append(RoomOpeningSensor(coord, entry, room))
         entities.append(RoomStatusSensor(coord, entry, room))
+    if entry.options.get(CONF_FLOW_SENSOR) and entry.options.get(CONF_RETURN_SENSOR):
+        entities.append(DeltaTSensor(coord, entry))
+        entities.append(EfficiencyStatusSensor(coord, entry))
     async_add_entities(entities)

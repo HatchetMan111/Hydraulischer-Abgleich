@@ -183,6 +183,50 @@ def test_openings_stay_within_bounds_matrix():
                 assert 20 <= adj.new_max <= 100, (rate, cur, adj)
 
 
+# ---------------------------------------------------------------- ΔT-Effizienz
+
+def test_delta_t_missing_data():
+    assert _learning.evaluate_delta_t(None, 40) is None
+    assert _learning.evaluate_delta_t(60, None) is None
+    assert _learning.evaluate_delta_t(None, None) is None
+
+
+def test_delta_t_healthy():
+    result = _learning.evaluate_delta_t(60, 50)
+    assert result["delta"] == 10.0
+    assert result["status"] == "ok"
+    assert "gesund" in result["advice"]
+
+
+def test_delta_t_too_small():
+    result = _learning.evaluate_delta_t(50, 48)
+    assert result["status"] == "spreizung_zu_klein"
+    assert "Vorlauf senken" in result["advice"]
+
+
+def test_delta_t_no_spread():
+    result = _learning.evaluate_delta_t(50, 49.6)
+    assert result["status"] == "keine_spreizung"
+
+
+def test_delta_t_too_large():
+    result = _learning.evaluate_delta_t(60, 42)
+    assert result["status"] == "spreizung_zu_gross"
+    assert "Durchfluss" in result["advice"]
+
+
+def test_delta_t_inverted():
+    result = _learning.evaluate_delta_t(45, 50)
+    assert result["status"] == "fehler"
+
+
+def test_delta_t_custom_limits_floor_heating():
+    # Fußbodenheizung: niedrige Grenzen
+    result = _learning.evaluate_delta_t(35, 31, low=3.0, high=8.0)
+    assert result["status"] == "ok"
+    assert _learning.evaluate_delta_t(35, 33, low=3.0, high=8.0)["status"] == "spreizung_zu_klein"
+
+
 # ---------------------------------------------------------------- simulation
 
 def test_closed_loop_simulation_converges():
