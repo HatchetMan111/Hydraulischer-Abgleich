@@ -13,6 +13,17 @@ views:
           - entity: sensor.hydraulik_abgleich_status
             name: Öffnungsgrade
             attribute: oeffnungsgrade
+      - type: entities
+        title: Effizienz (ΔT)
+        entities:
+          - entity: sensor.hydraulik_abgleich_spreizung_delta_t
+            name: Spreizung (Vorlauf − Rücklauf)
+          - entity: sensor.hydraulik_abgleich_effizienz
+            name: Effizienz-Status
+          - entity: sensor.hydraulik_abgleich_effizienz
+            name: Hinweis
+            attribute: hinweis
+        # Erscheinen, sobald in den Einstellungen Vorlauf- und Rücklauf-Sensor gesetzt sind.
       - type: horizontal-stack
         cards:
           - type: button
